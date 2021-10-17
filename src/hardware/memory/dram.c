@@ -28,7 +28,7 @@ e.g. write 0x00007fd357a02ae0 to cache, the memory lapping should be:
 // memory accessing used in instructions
 uint64_t cpu_read64bits_dram(uint64_t paddr)
 {
-    if (DEBUG_ENABLE_SRAM_CACHE == 1)
+#ifdef DEBUG_ENABLE_SRAM_CACHE
     {
         // try to load uint64_t from SRAM cache
         // little-endian
@@ -39,7 +39,7 @@ uint64_t cpu_read64bits_dram(uint64_t paddr)
         }
         return val;
     }
-    else
+#elif
     {
         // read from DRAM directly
         // little-endian
@@ -56,6 +56,7 @@ uint64_t cpu_read64bits_dram(uint64_t paddr)
 
         return val;
     }
+#endif
 }
 
 void cpu_write64bits_dram(uint64_t paddr, uint64_t data)

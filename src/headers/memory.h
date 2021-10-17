@@ -25,6 +25,7 @@
 // total 16 physical memory
 #define PHYSICAL_MEMORY_SPACE   (65536)
 #define MAX_INDEX_PHYSICAL_PAGE (15)
+#define MAX_NUM_PHYSICAL_PAGE (16)
 
 #define PAGE_TABLE_ENTRY_NUM    (512)
 
@@ -95,7 +96,7 @@ typedef union
     struct
     {
         uint64_t _present           : 1;
-        uint64_t swap_id            : 63;   // disk address
+        uint64_t daddr            : 63;   // disk address
     };
 } pte4_t;   // PT
 
@@ -103,6 +104,18 @@ typedef union
 /*      memory R/W                      */
 /*======================================*/
 
+typedef struct 
+{
+    int allocated;
+    int dirty;
+    int time;
+    
+    // todo: if multiple processes are using this page; eg. share library
+    pte4_t* pte4;
+    uint64_t daddr; // mapping to swap area in disk
+}pd_t;
+
+pd_t page_map[MAX_NUM_PHYSICAL_PAGE];
 // used by instructions: read or write uint64_t to DRAM
 uint64_t cpu_read64bits_dram(uint64_t paddr);
 void cpu_write64bits_dram(uint64_t paddr, uint64_t data);
