@@ -43,8 +43,8 @@ int delete_free_block(uint64_t free_header) {
     return 1;
 } 
 
-int check_freeblock_correctness() {
-    return 1;
+void check_freeblock_correctness() {
+    return;
 }
 
 #endif

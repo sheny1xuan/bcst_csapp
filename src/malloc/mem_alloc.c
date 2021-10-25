@@ -259,6 +259,7 @@ uint64_t mem_alloc(uint32_t size)
     check_heap_correctness();
     // check_freeblock_correctness();
 #endif
+    assert(payload_vaddr > get_firstblock() && payload_vaddr < get_epilogue());
 
     return payload_vaddr;
 }

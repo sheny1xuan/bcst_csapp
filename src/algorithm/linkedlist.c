@@ -8,98 +8,110 @@
  * without yangminz's permission.
  */
 
-#include <stdlib.h>
 #include <assert.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
-#include "../headers/algorithm.h"
+#include "headers/algorithm.h"
+
 /*======================================*/
 /*      Algorithms for Generic          */
 /*      Circular Doubly Linked List     */
 /*======================================*/
-int linkedlist_internal_add(linkedlist_internal_t *list,
-    linkedlist_node_interface* i_node, 
-    uint64_t value) {
 
-    if (list == NULL) {
+int linkedlist_internal_add(linkedlist_internal_t *list, 
+    linkedlist_node_interface *i_node, 
+    uint64_t value)
+{
+    if (list == NULL)
+    {
         return 0;
     }
     assert(list->update_head != NULL);
-    // verify the interface 
-    linkedlist_validate_interface(i_node, ILLIST_CONSTRUCT| ILLIST_PREV | ILLIST_NEXT | ILLIST_VALUE);
+    linkedlist_validate_interface(i_node, ILLIST_CONSTRUCT | ILLIST_PREV | ILLIST_NEXT | ILLIST_VALUE);
 
     uint64_t node = i_node->construct_node();
     i_node->set_node_value(node, value);
     return linkedlist_internal_insert(list, i_node, node);
 }
 
-int linkedlist_internal_insert(linkedlist_internal_t* list,
-    linkedlist_node_interface* i_node,
-    uint64_t node) {
-    
-    if (list == NULL) {
+int linkedlist_internal_insert(linkedlist_internal_t *list, 
+    linkedlist_node_interface *i_node, 
+    uint64_t node)
+{
+    if (list == NULL)
+    {
         return 0;
     }
     assert(list->update_head != NULL);
     linkedlist_validate_interface(i_node, ILLIST_PREV | ILLIST_NEXT);
 
-    if (list->count == 0) {
-        // circle list
-        i_node->set_node_next(node, node);
-        i_node->set_node_prev(node, node);
-
-        // this node is head
+    if (list->count == 0)
+    {
+        // create a new head
         list->update_head(list, node);
         list->count = 1;
-    } else {
-        // insert to head;
+        // circular linked list initialization
+        i_node->set_node_prev(node, node);
+        i_node->set_node_next(node, node);
+    }
+    else
+    {
+        // insert to head
         uint64_t head = list->head;
         uint64_t head_prev = i_node->get_node_prev(head);
 
-        i_node->set_node_prev(head, node);
         i_node->set_node_next(node, head);
+        i_node->set_node_prev(head, node);
 
         i_node->set_node_prev(node, head_prev);
         i_node->set_node_next(head_prev, node);
-        
+
         list->update_head(list, node);
-        list->count += 1;
+        list->count ++;
     }
 
     return 1;
 }
 
-int linkedlist_internal_delete(linkedlist_internal_t* list,
-    linkedlist_node_interface* i_node,
-    uint64_t node) {
-
-    if (list == NULL || node == NULL_ID) {
+int linkedlist_internal_delete(linkedlist_internal_t *list, 
+    linkedlist_node_interface *i_node, 
+    uint64_t node)
+{
+    if (list == NULL || node == NULL_ID)
+    {
         return 0;
     }
-
     assert(list->update_head != NULL);
     linkedlist_validate_interface(i_node, 
         ILLIST_COMPARE | ILLIST_CHECKNULL | ILLIST_PREV | ILLIST_NEXT);
-    
+
+    // update the prev and next pointers
+    // same for the only one node situation
     uint64_t prev = i_node->get_node_prev(node);
     uint64_t next = i_node->get_node_next(node);
 
-    if (i_node->is_null_node(prev) != 1) {
+    if (i_node->is_null_node(prev) == 0)
+    {
         i_node->set_node_next(prev, next);
     }
 
-    if (i_node->is_null_node(next) != 1) {
+    if (i_node->is_null_node(next) == 0)
+    {
         i_node->set_node_prev(next, prev);
     }
 
-    // if this node is head
-    if (i_node->compare_nodes(node, list->head)) {
+    // if this node to be free is the head
+    if (i_node->compare_nodes(list->head, node) == 0)
+    {
         list->update_head(list, next);
     }
 
-    list->count -= 1;
+    // reset the linked list status
+    list->count --;
 
-    if (list->count == 0) {
+    if (list->count == 0)
+    {
         list->update_head(list, NULL_ID);
     }
 
@@ -192,95 +204,94 @@ void linkedlist_validate_interface(linkedlist_node_interface *i_node,
     }
 }
 
-// linked list default implement 
-// value is <uint64_t>
-static int is_null_node(uint64_t node_id) {
-    if (node_id == NULL_ID) {
+static int is_null_node(uint64_t node_id)
+{
+    if (node_id == NULL_ID)
+    {
         return 1;
     }
     return 0;
 }
 
-static uint64_t construct_node() {
+static uint64_t construct_node()
+{
     return (uint64_t)malloc(sizeof(linkedlist_node_t));
 }
 
-static int destruct_node(uint64_t node_id) {
-    if (is_null_node(node_id) == 1) {
-        return 0;   
-    }
-
-    linkedlist_node_t* node = (linkedlist_node_t* )node_id;
-
+static int destruct_node(uint64_t node_id)
+{
+    if (is_null_node(node_id) == 1)
+    {
+        return 0;
+    }    
+    linkedlist_node_t *node = (linkedlist_node_t *)node_id;
+    
     free(node);
-
     return 1;
 }
 
-static int compare_nodes(uint64_t first, uint64_t second) {
+static int compare_nodes(uint64_t first, uint64_t second)
+{
     return !(first == second);
 }
 
-static uint64_t get_node_prev(uint64_t node_id) {
-    if (is_null_node(node_id) == 1) {
-        return NULL_ID;
-    } 
-
-    return (uint64_t)(((linkedlist_node_t*)(node_id))->prev);
-}
-
-static int set_node_prev(uint64_t node_id, uint64_t prev_id) {
-    if (is_null_node(node_id) == 1) {
-        return NULL_ID;
-    } 
-
-    linkedlist_node_t* cur = (linkedlist_node_t* )node_id;
-    cur->prev = (linkedlist_node_t*)prev_id;
-
-    return 1;
-}
-
-static uint64_t get_node_next(uint64_t node_id) {
-    if (is_null_node(node_id) == 1) {
-        return NULL_ID;
-    } 
-
-    return (uint64_t)(((linkedlist_node_t*)(node_id))->next);
-}
-
-static int set_node_next(uint64_t node_id, uint64_t next_id) {
-    if (is_null_node(node_id) == 1) {
-        return NULL_ID;
-    } 
-
-    linkedlist_node_t* cur = (linkedlist_node_t* )node_id;
-    cur->next = (linkedlist_node_t*)next_id;
-
-    return 1;
-}
-
-static uint64_t get_node_value(uint64_t node_id) {
-    if (is_null_node(node_id) == 1) {
+static uint64_t get_node_prev(uint64_t node_id)
+{
+    if (is_null_node(node_id) == 1)
+    {
         return NULL_ID;
     }
-
-    linkedlist_node_t* cur = (linkedlist_node_t* )node_id;
-
-    return (uint64_t)cur->value;
+    return (uint64_t)(((linkedlist_node_t *)node_id)->prev);
 }
 
-static int set_node_value(uint64_t node_id, uint64_t value) {
-    if (is_null_node(node_id) == 1) {
-        return NULL_ID;
+static int set_node_prev(uint64_t node_id, uint64_t prev_id)
+{
+    if (is_null_node(node_id) == 1)
+    {
+        return 0;
     }
-
-    linkedlist_node_t* cur = (linkedlist_node_t* )node_id;
-    cur->value = value; 
-
+    *(uint64_t *)&(((linkedlist_node_t *)node_id)->prev) = prev_id;
     return 1;
 }
 
-// default implement of node interface 
+static uint64_t get_node_next(uint64_t node_id)
+{
+    if (is_null_node(node_id) == 1)
+    {
+        return NULL_ID;
+    }
+    return (uint64_t)(((linkedlist_node_t *)node_id)->next);
+}
+
+static int set_node_next(uint64_t node_id, uint64_t next_id)
+{
+    if (is_null_node(node_id) == 1)
+    {
+        return 0;
+    }
+    *(uint64_t *)&(((linkedlist_node_t *)node_id)->next) = next_id;
+    return 1;
+}
+
+static uint64_t get_node_value(uint64_t node_id)
+{
+    if (is_null_node(node_id) == 1)
+    {
+        return NULL_ID;
+    }
+    return (uint64_t)(((linkedlist_node_t *)node_id)->value);
+}
+
+static int set_node_value(uint64_t node_id, uint64_t value)
+{
+    if (is_null_node(node_id) == 1)
+    {
+        return 0;
+    }
+    ((linkedlist_node_t *)node_id)->value = value;
+    return 1;
+}
+
 static linkedlist_node_interface i_node =
 {
     .construct_node = &construct_node,
@@ -296,41 +307,42 @@ static linkedlist_node_interface i_node =
 };
 
 // child class of base class
-static int update_head(linkedlist_internal_t *this, uint64_t new_head) {
-    if (this == NULL) {
+static int update_head(linkedlist_internal_t *this, uint64_t new_head)
+{
+    if (this == NULL)
+    {
         return 0;
     }
     this->head = new_head;
     return 1;
 }
 
-// construct the linkedlist
-linkedlist_t* linkedlist_construct() {
+// constructor and destructor
+linkedlist_t *linkedlist_construct()
+{
     linkedlist_t *list = malloc(sizeof(linkedlist_t));
-    // public
     list->base.count = 0;
     list->base.head = NULL_ID;
-    // initalize private
     list->base.update_head = &update_head;
     return list;
 }
 
-void linkedlist_free(linkedlist_t* list) {
-    if(list == NULL) {
+void linkedlist_free(linkedlist_t *list)
+{
+    if (list == NULL)
+    {
         return;
     }
-
-    linkedlist_internal_t* base = &(list->base);
+    linkedlist_internal_t *base = &(list->base);
     assert(base->update_head != NULL);
 
     int count_copy = base->count;
-    for (int i = 0; i < count_copy; i++) {
+    for (int i = 0; i < count_copy; ++ i)
+    {
         uint64_t node = base->head;
-
-        base->update_head(base, i_node.get_node_next(base->head));
-
-        // if only one node del this node directly
-        // if have many node del node from list first
+        base->update_head(base,
+            i_node.get_node_next(base->head));
+        
         if (i_node.compare_nodes(node, base->head) == 0)
         {
             // TODO: logic can be removed
