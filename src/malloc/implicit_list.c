@@ -5,14 +5,11 @@
 #include "../headers/allocator.h"
 #include "../headers/algorithm.h"
 
-#define IMPLICIT_FREE_LIST
-#ifdef IMPLICIT_FREE_LIST
-
-int initialize_free_block() {
+int implicit_list_initialize_free_block() {
     return 1;
 }
 
-uint64_t search_free_block(uint32_t payload_size, uint32_t* alloc_blocksize) {
+uint64_t implicit_list_search_free_block(uint32_t payload_size, uint32_t* alloc_blocksize) {
     // search 8-byte block list
     // TODO
 
@@ -35,16 +32,14 @@ uint64_t search_free_block(uint32_t payload_size, uint32_t* alloc_blocksize) {
     return NIL;
 }
 
-int insert_free_block(uint64_t free_header) {
+int implicit_list_insert_free_block(uint64_t free_header) {
     return 1;
 }
 
-int delete_free_block(uint64_t free_header) {
+int implicit_list_delete_free_block(uint64_t free_header) {
     return 1;
 } 
 
-void check_freeblock_correctness() {
+void implicit_list_check_free_block() {
     return;
 }
-
-#endif

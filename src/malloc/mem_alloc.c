@@ -16,6 +16,84 @@
 #include "headers/allocator.h"
 
 /* ------------------------------------- */
+/*         Free Block Management         */
+/* ------------------------------------- */
+#ifdef IMPLICIT_FREE_LIST
+int implicit_list_initialize_free_block();
+uint64_t implicit_list_search_free_block(uint32_t payload_size, uint32_t *alloc_blocksize);
+int implicit_list_insert_free_block(uint64_t free_header);
+int implicit_list_delete_free_block(uint64_t free_header);
+void implicit_list_check_free_block();
+#endif
+
+#ifdef EXPLICIT_FREE_LIST
+int explicit_list_initialize_free_block();
+uint64_t explicit_list_search_free_block(uint32_t payload_size, uint32_t *alloc_blocksize);
+int explicit_list_insert_free_block(uint64_t free_header);
+int explicit_list_delete_free_block(uint64_t free_header);
+void explicit_list_check_free_block();
+#endif
+
+static int initialize_free_block() {
+
+#ifdef IMPLICIT_FREE_LIST
+    return implicit_list_initialize_free_block();
+#endif
+
+#ifdef EXPLICIT_FREE_LIST
+    return explicit_list_initialize_free_block();
+#endif
+
+} 
+
+static uint64_t search_free_block(uint32_t payload_size, uint32_t *alloc_blocksize) {
+
+#ifdef IMPLICIT_FREE_LIST
+    return implicit_list_search_free_block(payload_size, alloc_blocksize);
+#endif
+
+#ifdef EXPLICIT_FREE_LIST
+    return explicit_list_search_free_block(payload_size, alloc_blocksize);
+#endif
+
+} 
+
+static int insert_free_block(uint64_t free_header) {
+
+#ifdef IMPLICIT_FREE_LIST
+    return implicit_list_insert_free_block(free_header);
+#endif
+
+#ifdef EXPLICIT_FREE_LIST
+    return explicit_list_insert_free_block(free_header);
+#endif
+
+} 
+
+static int delete_free_block(uint64_t free_header) {
+
+#ifdef IMPLICIT_FREE_LIST
+    return implicit_list_delete_free_block(free_header);
+#endif
+
+#ifdef EXPLICIT_FREE_LIST
+    return explicit_list_delete_free_block(free_header);
+#endif
+
+} 
+
+void check_free_block() {
+    
+#ifdef IMPLICIT_FREE_LIST
+    implicit_list_check_free_block(); 
+#endif
+
+#ifdef EXPLICIT_FREE_LIST
+    explicit_list_check_free_block();
+#endif
+
+}
+/* ------------------------------------- */
 /*  Operating System Implemented         */
 /* ------------------------------------- */
 

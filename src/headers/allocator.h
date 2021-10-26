@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 
+#define MIN_EXPLICIT_FREE_LIST_BLOCKSIZE (16)
 // heap's range:
 // [heap_start_vaddr, heap_end_vaddr)
 // [0, 4) 4 Bytes -> not used as cover
@@ -49,11 +50,8 @@ uint64_t get_lastblock();
 uint64_t get_prologue();
 uint64_t get_epilogue();
 
-// implement by different strategy
-int initialize_free_block();    // set the only free block at first
-uint64_t search_free_block(uint32_t payload_size, uint32_t* alloc_blocksize);   // the second term is out parameters
-int insert_free_block(uint64_t free_header);
-int delete_free_block(uint64_t free_header);
+uint64_t get_field32_block_ptr(uint64_t header_vaddr, uint32_t min_blocksize, uint32_t offset); 
+void set_field32_block_ptr(uint64_t header_vaddr, uint64_t block_ptr, uint32_t min_blocksize, uint32_t offset);
 
 // interface
 int heap_init();

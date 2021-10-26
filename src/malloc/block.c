@@ -251,3 +251,43 @@ int is_lastblock(uint64_t vaddr) {
 
     return 0;
 }
+
+/* ------------------------------------- */
+/*  Free Block as Data Structure         */
+/* ------------------------------------- */
+
+// can used in free list
+// get 32Byte address_vaddr of block
+uint64_t get_field32_block_ptr(uint64_t header_vaddr, uint32_t min_blocksize, uint32_t offset) {
+    if (header_vaddr == NIL) {
+        return NIL;
+    }
+
+    assert(get_firstblock() <= header_vaddr && header_vaddr <= get_lastblock());
+    assert(header_vaddr % 8 == 4);  // header 4 Byte over
+    assert(get_blocksize(header_vaddr) >= min_blocksize);
+
+    assert(offset % 4 == 0);    // offset 4 Byte alignment
+
+    uint32_t vaddr_32 = *(uint32_t *)&heap[header_vaddr + offset];
+    
+    return (uint64_t)vaddr_32;
+}
+
+void set_field32_block_ptr(uint64_t header_vaddr, uint64_t block_ptr, uint32_t min_blocksize, uint32_t offset) {
+    if (header_vaddr == NIL) {
+        return ;
+    }
+
+    assert(get_firstblock() <= header_vaddr && header_vaddr <= get_lastblock());
+    assert(header_vaddr % 8 == 4);  // header 4 Byte over
+    assert(get_blocksize(header_vaddr) >= min_blocksize);
+
+    assert(block_ptr == NIL || (get_firstblock() <= block_ptr && block_ptr <= get_lastblock()));
+    assert(block_ptr == NIL || block_ptr % 8 == 4);  // header 4 Byte over
+    assert(block_ptr == NIL || get_blocksize(block_ptr) >= min_blocksize);
+
+    assert(offset % 4 == 0);
+
+    *(uint32_t* )(&heap[header_vaddr + offset]) = (uint32_t)(block_ptr & 0xffffffff);
+}
