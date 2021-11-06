@@ -256,7 +256,7 @@ def build(key):
                     "-o", "./bin/false_sharing"
                 ],
             ],
-        "rb" : [
+        "rbt" : [
                 [
                     "/usr/bin/gcc-7", 
                     "-Wall", "-g", "-O0", "-Werror", "-std=gnu99", "-Wno-unused-but-set-variable", "-Wno-unused-variable", "-Wno-unused-function",
@@ -264,8 +264,9 @@ def build(key):
                     "-DDEBUG_REDBLACK",
                     "./src/common/convert.c",
                     "./src/algorithm/bst.c",
-                    "./src/algorithm/redblack.c",
-                    "-o", "./bin/rb"
+                    "./src/algorithm/rbt.c",
+                    "./src/tests/test_rbt.c",
+                    "-o", "./bin/rbt"
                 ],
             ],
         "trie" : [
@@ -286,10 +287,11 @@ def build(key):
                     "-DDEBUG_BST",
                     "./src/algorithm/bst.c",
                     "./src/common/convert.c",
+                    "./src/tests/test_bst.c",
                     "-o", "./bin/bst"
                 ],
             ],
-        "malloc":[
+        "malloc" : [
                 [
                     "/usr/bin/gcc-7",
                     "-Wall", "-g", "-O0", "-Werror", "-std=gnu99", "-Wno-unused-but-set-variable", "-Wno-unused-variable", "-Wno-unused-function",
@@ -311,7 +313,7 @@ def build(key):
                     "./src/tests/test_malloc.c",
                     "-o", "./bin/malloc"
                 ],
-        ]
+            ],
     }
 
     if not key in gcc_map:
@@ -328,7 +330,7 @@ def run(key):
         "link" : ["./bin/link", "main", "sum", "-o", "output"],
         "mesi" : ["./bin/mesi"],
         "false_sharing" : ["./bin/false_sharing"],
-        "rb" : ["./bin/rb"],
+        "rbt" : ["./bin/rbt"],
         "trie" : ["./bin/trie"],
         "bst" : ["./bin/bst"],
         "malloc": ["./bin/malloc"],

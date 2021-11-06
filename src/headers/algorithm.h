@@ -380,5 +380,6 @@ void bst_remove(rb_tree_t *tree, uint64_t key);
 void bst_delete(rb_tree_t *tree, rb_node_t *node);
 rb_node_t *bst_find(rb_tree_t *tree, uint64_t key);
 rb_node_t *bst_find_succ(rb_tree_t *tree, uint64_t key);
+void bst_print(rb_node_t *node);
 
 #endif

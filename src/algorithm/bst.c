@@ -109,11 +109,6 @@ void bst_internal_replace(uint64_t victim, uint64_t node,
 
     // Judge this node whether is root node of tree
     uint64_t v_parent = i_node->get_parent(victim);
-    // uint64_t l_child = i_node->get_leftchild(victim);
-    // uint64_t r_child = i_node->get_rightchild(victim);
-    // // update child 
-    // bst_internal_setchild(node, l_child, LEFT_CHILD, i_node);
-    // bst_internal_setchild(node, r_child, RIGHT_CHILD, i_node);
 
     if (i_node->compare_nodes(tree->root, victim) == 0) {
         // victim is root, update tree root
@@ -155,7 +150,7 @@ void bst_internal_insert(rbtree_internal_t* tree,
 
     assert(i_node->is_null_node(node_id) == 0);
 
-    int x = node_id;
+    uint64_t x = node_id;
 
     if (i_node->is_null_node(tree->root) == 1) {
         // Tree don't has any node
@@ -172,7 +167,7 @@ void bst_internal_insert(rbtree_internal_t* tree,
     uint64_t p = tree->root;
     uint64_t x_key = i_node->get_key(x);
 
-    while (p) {
+    while (i_node->is_null_node(p) == 0) {
         uint64_t p_key = i_node->get_key(p);
 
         if (x_key < p_key) {
@@ -365,7 +360,7 @@ uint64_t bst_internal_find_succ(rbtree_internal_t* tree,
     
     uint64_t p = tree->root;
 
-    uint64_t successor = tree->root;
+    uint64_t successor = NULL_ID;
     uint64_t successor_key = 0x7FFFFFFFFFFFFFFF;
 
     while (i_node->is_null_node(p) == 0) {
@@ -628,6 +623,11 @@ int internal_tree_compare(uint64_t a, uint64_t b, rbtree_node_interface *i_node,
             // compare left and right subtree
             return  internal_tree_compare(i_node->get_leftchild(a), i_node->get_leftchild(b), i_node, is_rbt) && 
                     internal_tree_compare(i_node->get_rightchild(a), i_node->get_rightchild(b), i_node, is_rbt);
+        } else if (is_rbt == 1) {
+            if (i_node->get_color(a) == i_node->get_color(b)) {
+                return  internal_tree_compare(i_node->get_leftchild(a), i_node->get_leftchild(b), i_node, is_rbt) && 
+                        internal_tree_compare(i_node->get_rightchild(a), i_node->get_rightchild(b), i_node, is_rbt);
+            }
         }
     }
 
