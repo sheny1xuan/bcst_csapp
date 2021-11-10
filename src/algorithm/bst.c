@@ -230,6 +230,16 @@ void bst_internal_delete(rbtree_internal_t* tree,
 
     if (is_x_left_null == 1 && is_x_right_null == 1) {
         // case1: x is leaf node
+        if (is_rbt == 1 ) {
+            // check the color of the deleted node
+            rb_color_t x_color = i_node->get_color(node_id);
+
+            if (x_color == COLOR_BLACK) {
+                // null is double black
+                *db_parent = i_node->get_parent(x);
+            }
+        }
+
         bst_internal_replace(x, NULL_ID, tree, i_node);
         return;
     } else if (is_x_left_null == 1 || is_x_right_null == 1) {
@@ -240,6 +250,14 @@ void bst_internal_delete(rbtree_internal_t* tree,
             y = x_left;
         } else {
             y = x_right;
+        }
+
+        if (is_rbt == 1) {
+            // not_null_node is red leaf node
+            assert(i_node->get_color(y) == COLOR_RED);
+            assert(i_node->is_null_node(i_node->get_leftchild(y)) == 1);
+            assert(i_node->is_null_node(i_node->get_rightchild(y)) == 1);
+            i_node->set_color(y, COLOR_BLACK);
         }
 
         bst_internal_replace(x, y, tree, i_node);
@@ -298,6 +316,17 @@ void bst_internal_delete(rbtree_internal_t* tree,
             bst_internal_replace(x, s, tree, i_node);
             bst_internal_setchild(s_parent, x, LEFT_CHILD, i_node);
         }
+
+        if (is_rbt == 1) {
+            // swap node and successor color 
+            // in this way, won't affect other part color, only affect the successor color
+            rb_color_t x_color = i_node->get_color(x);
+            i_node->set_color(x, i_node->get_color(s));
+            i_node->set_color(s, x_color);
+        }
+
+        assert(i_node->is_null_node(x) == 0);
+        assert(i_node->is_null_node(i_node->get_leftchild(x)) == 1);
 
         // Recursion delete x by leaf
         bst_internal_delete(tree, i_node, x, is_rbt, db_parent);

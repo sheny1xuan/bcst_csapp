@@ -167,7 +167,32 @@ void rbt_internal_insert(rbtree_internal_t* tree,
 void rbt_internal_delete(rbtree_internal_t *tree,
     rbtree_node_interface *i_node, 
     uint64_t node_id) {
+    // db is double black point
+    uint64_t db = NULL_ID;
+    //         p
+    //    x         s
+    //          n       f
+    // p:parent, s: , n:near, f:far
+    uint64_t p;
+    uint64_t s;
+    uint64_t n;
+    uint64_t f;
 
+    // this method will transform delete a node to a leaf node
+    // if p == null_node, it means don't have double black situation
+    bst_internal_delete(tree, i_node, node_id, 1, &p);
+
+    // Corner Case: if root is db and its p is null, then don't do anything.
+    // root is db willn't influence the balance of rbt.
+    // don't have db or root is bd
+    if (i_node->is_null_node(p) == 1) {
+        return;
+    }
+
+    // rebalance the double black node
+    while (i_node->compare_nodes(db, tree->root) != 0) {
+        // init p s n f
+    }
 }
 
 /*======================================*/
